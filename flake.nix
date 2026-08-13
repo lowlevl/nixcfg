@@ -18,7 +18,8 @@
         # In Greek mythology, Hypnos (/ˈhɪpnɒs/; Ancient Greek: Ὕπνος),
         # also spelled Hypnus, is the personification of sleep.
         nixosConfigurations.hypnos = nixpkgs.lib.nixosSystem {
-          modules = [];
+          specialArgs = {inherit inputs;};
+          modules = [./confs/hypnos];
         };
       };
 
