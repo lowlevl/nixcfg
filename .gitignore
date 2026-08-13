@@ -1,0 +1,21 @@
+# :: generic
+*~
+,*
+.*.swp
+.*.swo
+.\#*
+\#*\#
+
+.idea/
+.vscode/
+.helix/
+.direnv
+
+# :: nix
+outputs/
+result-*
+result
+repl-result-*
+tags
+.version-suffix
+.nixos-test-history
