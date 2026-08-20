@@ -17,3 +17,16 @@ nix run github:nix-community/nixos-anywhere -- \
     --generate-hardware-config nixos-facter ./confs/<machine>/facter.json \
     --extra-files "$temp" --flake .#<machine> --target-host nixos@<ip>
 ```
+
+# > todos
+
+- Fail2ban for sshd.
+- Implement off-site encrypted backups.
+- Set-up systemd services alerts.
+- Set-up a SyncThing peer.
+- Re-up the {Cal, Card}DAV server.
+- Re-up the Factorio server.
+- Set-up and Immich with ML (?) using iGPU.
+- Find & set-up a Music hosting thingy.
+- Finish & set-up my own git.
+- Bring back emails to my control.
