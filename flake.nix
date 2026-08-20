@@ -31,9 +31,6 @@
         nixosConfigurations.hypnos = nixpkgs.lib.nixosSystem {
           specialArgs = {inherit inputs;};
           modules = [./confs/hypnos];
-
-          # FIXME: remove this
-          system = "x86_64-linux";
         };
       };
 
