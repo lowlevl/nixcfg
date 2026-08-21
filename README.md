@@ -28,7 +28,6 @@ nixos-rebuild switch --refresh --flake github:lowlevl/nixcfg
 # > todos
 
 - Implement off-site encrypted backups.
-- Set-up systemd services alerts.
 - Set-up a SyncThing peer.
 - Re-up the {Cal, Card}DAV server.
 - Re-up the Factorio server.

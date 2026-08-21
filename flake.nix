@@ -13,13 +13,17 @@
       url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   #> `flake-parts` is automagically included with magics of the flake-registry.
   outputs = inputs @ {
     flake-parts,
     nixpkgs,
-    disko,
     ...
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {

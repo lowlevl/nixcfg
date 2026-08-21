@@ -4,57 +4,168 @@
   lib,
   ...
 }: let
-  recipient = "hello" + "@" + "unw" + "." + "re";
+  cfg = config.services.alerts;
 in {
-  # FIXME: make the module configurable and reusable
-  # FIXME: attach to all systemd units
-  # FIXME: adapt confinement policy
+  options.services.alerts = {
+    enable = lib.mkEnableOption "A facility to send on alerts about units";
 
-  systemd.services."alerts@" = {
-    enable = true;
-    enableStrictShellChecks = true;
+    mta = lib.mkOption {
+      description = "Configuration for the sending Mail Transfer Agent";
+      type = lib.types.submodule {
+        options = {
+          hostname = lib.mkOption {
+            description = "MTA hostname";
+            type = lib.types.str;
+          };
 
-    description = "A facility to send mails for failed units";
-    onFailure = lib.mkForce []; #< prevent circular triggers
+          port = lib.mkOption {
+            description = "MTA port";
+            default =
+              if cfg.mta.tls
+              then 587
+              else 25;
+            type = lib.types.int;
+          };
 
-    confinement.enable = true;
-    serviceConfig = {
-      Type = "oneshot";
+          tls = lib.mkOption {
+            description = "Whether to connect to the MTA with TLS";
+            default = false;
+            type = lib.types.bool;
+          };
 
-      DynamicUser = true;
-      User = "alerts";
-      Group = "alerts";
+          username = lib.mkOption {
+            description = "User to authenticate to the MTA with";
+            default = null;
+            type = lib.types.nullOr lib.types.str;
+          };
 
-      CapabilityBoundingSet = [""];
-      LockPersonality = true;
-
-      ProtectProc = "invisible";
-      ProtectClock = true;
-      ProtectHostname = true;
-      ProtectKernelLogs = true;
-      RestrictNamespaces = true;
-      RestrictAddressFamilies = ["AF_INET" "AF_INET6"];
-
-      ExecStartPre = "+systemctl status --full '%i' > %t/unit.log";
+          passwordFile = lib.mkOption {
+            description = "A file containing the password to authenticate to the MTA";
+            default = null;
+            type = lib.types.nullOr lib.types.str;
+          };
+        };
+      };
     };
 
-    script = ''
-      ${lib.getExe pkgs.msmtp} --read-recipients --read-envelope-from <<EOF
-      From: alerts@${config.networking.fqdn}
-      To: ${recipient}
-      Subject: systemd Unit "$1" failed
+    sender = lib.mkOption {
+      description = "The sender of the alerts";
+      default = "alerts@${config.networking.fqdn}";
+      type = lib.types.str;
+    };
+    recipients = lib.mkOption {
+      description = "A list of recipients of the alerts";
+      type = lib.types.listOf lib.types.str;
+    };
 
-      This is your systemd monitor,
-      it seems like Unit "$1" failed; see:
+    on = lib.mkOption {
+      default = {};
+      type = lib.types.submodule {
+        options = {
+          failure = lib.mkOption {
+            description = "A list of systemd.unit to watch for failure";
+            default = [];
+            type = lib.types.listOf lib.types.str;
+          };
 
-      $(cat "$2"/unit.log)
+          success = lib.mkOption {
+            description = "A list of systemd.unit to watch for success";
+            default = [];
+            type = lib.types.listOf lib.types.str;
+          };
+        };
+      };
+    };
+  };
 
-      --
-      Sincerely,
-      Beep boop.
+  config = lib.mkIf cfg.enable {
+    systemd.packages = let
+      failures =
+        builtins.map
+        (service:
+          pkgs.writeTextDir "/etc/systemd/system/${service}.service.d/alerts-onfailure.conf" ''
+            [Unit]
+            OnFailure=alerts@%N.service
+          '')
+        (builtins.filter (service: service != "alerts@") cfg.on.failure);
 
-      EOF
-    '';
-    scriptArgs = "%i %t";
+      successes =
+        builtins.map
+        (service:
+          pkgs.writeTextDir "/etc/systemd/system/${service}.service.d/alerts-onsuccess.conf" ''
+            [Unit]
+            OnSuccess=alerts@%N.service
+          '')
+        (builtins.filter (service: service != "alerts@") cfg.on.success);
+    in
+      failures ++ successes;
+
+    systemd.services."alerts@" = {
+      enable = true;
+      enableStrictShellChecks = true;
+
+      description = "Notification sender for {succeeded, failed} units";
+      serviceConfig = {
+        Type = "oneshot";
+
+        DynamicUser = true;
+        User = "alerts";
+        Group = "alerts";
+        SupplementaryGroups = ["systemd-journal"];
+
+        CapabilityBoundingSet = [""];
+        LockPersonality = true;
+
+        ProtectProc = "invisible";
+        ProtectClock = true;
+        ProtectHostname = true;
+        ProtectControlGroups = true;
+        ProtectKernelLogs = true;
+        ProtectKernelModules = true;
+        ProtectKernelTunables = true;
+        RestrictNamespaces = true;
+        #> `AF_UNIX` is required for systemctl
+        RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6"];
+
+        ReadOnlyPaths = ["+/"];
+        ReadWritePaths = [""];
+        PrivateDevices = true;
+        PrivateMounts = true;
+        PrivateUsers = true;
+        PrivateTmp = true;
+
+        LoadCredential = lib.optional (!isNull cfg.mta.passwordFile) "password:${cfg.mta.passwordFile}";
+      };
+
+      script = ''
+        status=$(systemctl status --full "$1" || true)
+
+        ${lib.getExe pkgs.curl} \
+          --silent --show-error \
+          --mail-from="${cfg.sender}" \
+          ${lib.concatMapStringsSep " " (rcpt: ''--mail-rcpt="${rcpt}"'') cfg.recipients} \
+          ${lib.optionalString (!isNull cfg.mta.username) ''--variable="user=${cfg.mta.username}"''} \
+          ${lib.optionalString (!isNull cfg.mta.passwordFile) ''--variable="pass@$2/password"''} \
+          ${lib.optionalString (!isNull cfg.mta.username) ''--expand-user="{{user:trim}}:{{pass:trim}}"''} \
+          ${lib.optionalString (cfg.mta.tls) "--ssl-reqd"} \
+          "smtp://${cfg.mta.hostname}:${toString cfg.mta.port}" \
+          --crlf --upload-file - <<EOF
+        From: <${cfg.sender}>
+        To: ${lib.concatMapStringsSep ", " (rcpt: "<${rcpt}>") cfg.recipients}
+        Subject: systemd Unit "$1" status.
+
+        This is your systemd monitor,
+        here is the state of Unit "$1":
+
+        $status
+
+        --
+        Sincerely,
+        Beep boop.
+
+        EOF
+      '';
+      scriptArgs = "%i %d";
+    };
   };
 }

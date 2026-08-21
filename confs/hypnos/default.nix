@@ -10,12 +10,15 @@
     inputs.self.nixosModules.zswap
     inputs.self.nixosModules.nix
 
-    inputs.self.nixosModules.alerts
     inputs.self.nixosModules.fw
     inputs.self.nixosModules.sshd
     inputs.self.nixosModules.users
     inputs.self.nixosModules.locale
 
+    inputs.self.nixosModules.alerts
+    inputs.self.nixosModules.sops
+
+    ./alerts.nix
     ./caddy.nix
     ./art.nix
   ];

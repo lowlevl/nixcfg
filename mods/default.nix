@@ -11,6 +11,7 @@
   users = import ./users.nix;
   locale = import ./locale.nix;
 
-  #> monitoring & resillience
+  #> miscellaneous
   alerts = import ./alerts.nix;
+  sops = import ./sops.nix;
 }
