@@ -16,6 +16,10 @@
       options = "--delete-older-than 30d";
     };
 
+    #> don't break service when updating
+    daemonCPUSchedPolicy = "idle";
+    daemonIOSchedPriority = 7;
+
     #> propagate flake inputs to older nix features
     registry.nixpkgs.flake = inputs.nixpkgs;
     nixPath = [
