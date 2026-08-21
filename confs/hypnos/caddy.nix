@@ -9,6 +9,10 @@
     globalConfig = ''
       admin off # disable admin API
       grace_period 5m # allow killing connections after `5m` when reloading
+
+      cert_issuer acme {
+        profile shortlived
+      }
     '';
 
     #> handle wildcard by displaying a 404
