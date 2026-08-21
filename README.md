@@ -20,7 +20,6 @@ nix run github:nix-community/nixos-anywhere -- \
 
 # > todos
 
-- Fail2ban for sshd.
 - Implement off-site encrypted backups.
 - Set-up systemd services alerts.
 - Set-up a SyncThing peer.
