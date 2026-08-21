@@ -18,6 +18,13 @@ nix run github:nix-community/nixos-anywhere -- \
     --extra-files "$temp" --flake .#<machine> --target-host nixos@<ip>
 ```
 
+# > applying a configuration
+
+After installing a machine, it can be updated using:
+```bash
+nixos-rebuild switch --refresh --flake github:lowlevl/nixcfg
+```
+
 # > todos
 
 - Implement off-site encrypted backups.
