@@ -27,6 +27,7 @@ nixos-rebuild switch --refresh --flake github:lowlevl/nixcfg
 
 # > todos
 
+- S.M.A.R.T alerting on disks.
 - Implement off-site encrypted backups.
 - Set-up a SyncThing peer.
 - Re-up the {Cal, Card}DAV server.
