@@ -28,10 +28,8 @@ nixos-rebuild switch --refresh --flake github:lowlevl/nixcfg
 # > todos
 
 - S.M.A.R.T alerting on disks.
-- Implement off-site encrypted backups.
 - Set-up a SyncThing peer.
 - Re-up the {Cal, Card}DAV server.
-- Re-up the Factorio server.
 - Set-up and Immich with ML (?) using iGPU.
 - Find & set-up a Music hosting thingy.
 - Finish & set-up my own git.

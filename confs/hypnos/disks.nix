@@ -2,6 +2,11 @@
   #> enable periodic fsTRIM on SSDs
   services.fstrim.enable = true;
 
+  #> set-up a blind directory in `/data`
+  systemd.tmpfiles.settings."01-blind" = {
+    "/data/blind"."d".mode = "0700";
+  };
+
   disko.devices = {
     #> root device with ESP & `/`
     disk.nvme0 = {

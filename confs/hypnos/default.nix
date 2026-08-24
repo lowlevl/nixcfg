@@ -23,6 +23,8 @@
 
     ./caddy.nix
     ./art.nix
+
+    ./factorio.nix
   ];
 
   disko.devices.disk.nvme0.device = "/dev/nvme0n1";
