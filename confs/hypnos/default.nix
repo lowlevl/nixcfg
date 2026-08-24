@@ -19,6 +19,8 @@
     inputs.self.nixosModules.sops
 
     ./alerts.nix
+    ./backups.nix
+
     ./caddy.nix
     ./art.nix
   ];
