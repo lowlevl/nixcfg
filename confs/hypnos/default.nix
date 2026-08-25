@@ -25,6 +25,7 @@
     ./art.nix
 
     ./factorio.nix
+    ./syncthing.nix
   ];
 
   disko.devices.disk.nvme0.device = "/dev/nvme0n1";
