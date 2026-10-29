@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     disko = {
       url = "github:nix-community/disko";
@@ -29,6 +30,12 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       flake = {
         nixosModules = import ./mods;
+        overlays.unstable = final: prev: {
+          unstable = import inputs.unstable {
+            inherit (prev) system;
+            config.allowUnfree = true;
+          };
+        };
 
         # In Greek mythology, Hypnos (/ˈhɪpnɒs/; Ancient Greek: Ὕπνος),
         # also spelled Hypnus, is the personification of sleep.
