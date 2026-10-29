@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   #> allow factorio as an unfree package
   nixpkgs.config.allowUnfreePredicate = pkg:
     builtins.elem (lib.getName pkg) ["factorio-headless"];
@@ -18,6 +22,21 @@
   services.factorio = {
     enable = true;
     openFirewall = true;
+
+    package = pkgs.factorio-headless.override {
+      # NOTE: this can simply be migrated to `versions` in the next NixOS release
+      versionsJson = pkgs.writers.writeJSON "versions.json" {
+        x86_64-linux.headless.stable = rec {
+          version = "2.1.24";
+          sha256 = "sha256-xJtmz/kKzv+Hsw8pc68N9/UXEssu4xU+AWnZvtRqlk8=";
+
+          needsAuth = false;
+          url = "https://factorio.com/get-download/${version}/headless/linux64";
+          name = "factorio_headless_x64-${version}.tar.xz";
+          tarDirectory = "x64";
+        };
+      };
+    };
 
     lan = true;
     autosave-interval = 3;
