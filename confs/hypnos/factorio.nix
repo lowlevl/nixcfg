@@ -27,8 +27,8 @@
       # NOTE: this can simply be migrated to `versions` in the next NixOS release
       versionsJson = pkgs.writers.writeJSON "versions.json" {
         x86_64-linux.headless.stable = rec {
-          version = "2.1.24";
-          sha256 = "sha256-xJtmz/kKzv+Hsw8pc68N9/UXEssu4xU+AWnZvtRqlk8=";
+          version = "2.1.25";
+          sha256 = "sha256-eNovWqmengr3WG1r+CwEqukRZdUwNnINq7JuhVaI864=";
 
           needsAuth = false;
           url = "https://factorio.com/get-download/${version}/headless/linux64";
