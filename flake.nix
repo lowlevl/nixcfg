@@ -22,11 +22,11 @@
   };
 
   #> `flake-parts` is automagically included with magics of the flake-registry.
-  outputs = inputs @ {
+  outputs = {
     flake-parts,
     nixpkgs,
     ...
-  }:
+  } @ inputs:
     flake-parts.lib.mkFlake {inherit inputs;} {
       flake = {
         nixosModules = import ./mods;

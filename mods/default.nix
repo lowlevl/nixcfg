@@ -4,6 +4,7 @@
   unluks = import ./unluks.nix;
   zswap = import ./zswap.nix;
   nix = import ./nix.nix;
+  up = import ./up.nix;
 
   #> base services & configuration
   fw = import ./fw.nix;

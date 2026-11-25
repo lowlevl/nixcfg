@@ -9,6 +9,7 @@
     inputs.self.nixosModules.unluks
     inputs.self.nixosModules.zswap
     inputs.self.nixosModules.nix
+    inputs.self.nixosModules.up
 
     inputs.self.nixosModules.fw
     inputs.self.nixosModules.sshd
